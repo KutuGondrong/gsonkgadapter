@@ -1,9 +1,8 @@
 package com.kutugondrong.gsonadapter
 
-
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.kutugondrong.networkkgadapter.ConverterNetworkKGAdapter
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
@@ -26,19 +25,38 @@ class GsonKGAdapter: ConverterNetworkKGAdapter(2) {
 
     override fun fromJson(json: String, classOf: KClass<*>, isList: Boolean): Any? {
         if (isList) {
-            var list = createListOfType(classOf)
-            list = Gson().fromJson(json, getTypeList(classOf))
-            return list
+            return getGsonList(json, classOf)
         }
         return Gson().fromJson(json, classOf.java)
     }
 
-    private fun <T : Any> createListOfType(clazz: KClass<T>?): ArrayList<T> {
-        return ArrayList()
+    override fun toJson(value: Any): String? {
+        return Gson().toJson(value)
     }
 
-    private fun <T : Any> getTypeList(clazz: KClass<T>?): Type {
-        return object : TypeToken<ArrayList<T?>?>() {}.type
+    private fun <T: Any> getGsonList(json: String, kclass: KClass<T>) : List<T> {
+        return Gson().fromJson<List<T>>(json, ListOfSomething<T>(kclass.java))
+    }
+
+    internal class ListOfSomething<X>(wrapped: Class<X>) : ParameterizedType {
+
+        private val wrapped: Class<*>
+
+        init {
+            this.wrapped = wrapped
+        }
+
+        override fun getActualTypeArguments(): Array<Type> {
+            return arrayOf<Type>(wrapped)
+        }
+
+        override fun getRawType(): Type {
+            return ArrayList::class.java
+        }
+
+        override fun getOwnerType(): Type? {
+            return null
+        }
     }
 
 }

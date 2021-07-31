@@ -23,7 +23,7 @@ Step 2. Add the dependency
 ```
 
 	dependencies {
-	        implementation 'com.github.KutuGondrong:gsonkgadapter:1.0.0'
+	        implementation 'com.github.KutuGondrong:gsonkgadapter-kg:0.0.1'
 	}
 
 ```
